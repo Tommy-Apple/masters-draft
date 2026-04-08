@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masters 2026 · Draft Scoreboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0b1610;
+    --bg2:      #0f1e13;
+    --card:     #132016;
+    --card2:    #1a2c1e;
+    --gold:     #c9a84c;
+    --gold2:    #e8d080;
+    --green:    #1a4a2e;
+    --green2:   #2d6a3f;
+    --text:     #e8dfc8;
+    --muted:    #7a9a7e;
+    --border:   #1e3022;
+    --red:      #d94f3a;
+    --orange:   #d4834a;
+    --blue:     #5a9fd4;
+    --good:     #4abf72;
+    --white:    #f4efe0;
+    --elim:     #3a1010;
+    --elim-b:   #7a2020;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Barlow Condensed', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(180deg, #061009 0%, #0f1e13 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Decorative corner lines */
+  header::before, header::after {
+    content: '';
+    position: absolute;
+    width: 120px; height: 120px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: 0.12;
+  }
+  header::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
+  header::after  { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.75;
+    margin-bottom: 6px;
+  }
+
+  .site-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 46px);
+    font-weight: 900;
+    color: var(--gold2);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .site-title span { color: var(--white); }
+
+  .site-sub {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 5px;
+  }
+
+  .rules-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 14px;
+  }
+
+  .rule-pill {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold);
+    padding: 3px 10px;
+    border-radius: 3px;
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    background: var(--green);
+    color: var(--gold2);
+    text-align: center;
+    padding: 7px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pulse {
+    width: 7px; height: 7px;
+    background: var(--gold2);
+    border-radius: 50%;
+    animation: pulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.6)} }
+
+  .refresh-btn {
+    background: none;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold);
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .refresh-btn:hover { background: rgba(201,168,76,0.15); }
+
+  /* ── TABS ── */
+  .tab-bar {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 16px 0;
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 7px 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 5px 5px 0 0;
+    transition: all 0.15s;
+  }
+  .tab-btn.active {
+    background: var(--card2);
+    border-color: var(--border);
+    border-bottom-color: var(--card2);
+    color: var(--gold);
+  }
+  .tab-btn:not(.active):hover { color: var(--text); background: rgba(255,255,255,0.03); }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px 50px;
+  }
+
+  .tab-content { display: none; padding-top: 14px; }
+  .tab-content.active { display: block; }
+
+  /* ── TEAM STANDINGS ── */
+  .standings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  .team-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: fadeUp 0.3s ease both;
+  }
+  .team-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  .team-card.eliminated { border-color: var(--elim-b); background: var(--elim); opacity: 0.85; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+
+  .team-head {
+    background: var(--green);
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.3);
+  }
+  .team-card.eliminated .team-head { background: #2a1010; }
+
+  .team-rank-name { display: flex; flex-direction: column; }
+  .t-rank { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,168,76,0.7); margin-bottom: 2px; }
+  .t-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--white); }
+
+  .t-score-block { text-align: right; }
+  .t-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .score-under { color: var(--red); }
+  .score-even  { color: var(--muted); }
+  .score-over  { color: var(--text); }
+  .score-elim  { color: var(--elim-b); font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+
+  .t-score-label { font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+
+  /* winner bonus badge */
+  .winner-bonus {
+    font-size: 9px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 3px;
+    display: inline-block;
+  }
+
+  /* players list */
+  .team-players { padding: 4px 0; }
+
+  .player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.035);
+    font-size: 13px;
+    gap: 6px;
+  }
+  .player-row:last-child { border-bottom: none; }
+  .player-row.counting { background: rgba(201,168,76,0.05); }
+  .player-row.cut-missed { opacity: 0.45; }
+
+  .p-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .p-name { flex: 1; font-weight: 600; color: var(--text); font-size: 13px; }
+  .p-name.cut { text-decoration: line-through; color: var(--muted); }
+  .p-name.wd  { text-decoration: line-through; color: var(--muted); font-style: italic; }
+
+  .p-right { display: flex; align-items: center; gap: 6px; }
+  .p-pos   { font-size: 11px; color: var(--muted); min-width: 28px; text-align: right; }
+  .p-score { font-size: 14px; font-weight: 700; min-width: 30px; text-align: right; }
+
+  .counting-star {
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+
+  /* cut warning */
+  .cut-warn {
+    padding: 5px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--red);
+    background: rgba(217,79,58,0.08);
+    text-align: center;
+    border-top: 1px solid rgba(217,79,58,0.2);
+  }
+
+  /* ── LEADERBOARD ── */
+  .leaderboard-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .lb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .lb-table thead tr {
+    background: var(--green);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.8);
+  }
+  .lb-table th { padding: 10px 14px; text-align: left; font-weight: 700; }
+  .lb-table th:nth-child(3), .lb-table th:nth-child(4), .lb-table th:last-child { text-align: right; }
+
+  .lb-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.1s; }
+  .lb-table tbody tr:last-child { border-bottom: none; }
+  .lb-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .lb-table tbody tr.cut-row { opacity: 0.45; }
+
+  .lb-table td { padding: 8px 14px; }
+  .lb-table td:nth-child(3), .lb-table td:nth-child(4), .lb-table td:last-child { text-align: right; }
+
+  .lb-pos { color: var(--muted); font-size: 12px; width: 36px; }
+
+  .owner-chip {
+    display: inline-block;
+    background: var(--green);
+    color: var(--gold);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 7px;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+
+  /* loading / error */
+  .loading-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    gap: 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg) } }
+
+  .err-box {
+    background: rgba(217,79,58,0.08);
+    border: 1px solid rgba(217,79,58,0.25);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: var(--red);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .last-updated {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 500px) {
+    .standings-grid { grid-template-columns: 1fr; }
+    .lb-table th:nth-child(4), .lb-table td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="eyebrow">Augusta National &middot; April 2026</div>
+    <div class="site-title">The <span>Masters</span></div>
+    <div class="site-sub">Draft Scoreboard</div>
+    <div class="rules-pills">
+      <div class="rule-pill">Top 3 scores count</div>
+      <div class="rule-pill">4 must make cut</div>
+      <div class="rule-pill">Winner: &minus;2 bonus</div>
+      <div class="rule-pill">No cut penalty</div>
+    </div>
+  </div>
+</header>
+
+<div class="status-bar">
+  <div class="pulse" id="pulseDot"></div>
+  <span id="statusText">Fetching live scores&hellip;</span>
+  <button class="refresh-btn" onclick="loadScores()">&#8635; Refresh</button>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('teams', this)">Teams</button>
+  <button class="tab-btn" onclick="switchTab('leaderboard', this)">Leaderboard</button>
+</div>
+
+<main>
+  <div id="tab-teams" class="tab-content active">
+    <div class="standings-grid" id="teamsGrid">
+      <div class="loading-wrap" style="grid-column:1/-1">
+        <div class="spinner"></div>Loading scores&hellip;
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-leaderboard" class="tab-content">
+    <div class="leaderboard-wrap" id="lbWrap">
+      <div class="loading-wrap"><div class="spinner"></div>Loading&hellip;</div>
+    </div>
+  </div>
+
+  <div class="last-updated" id="lastUpdated"></div>
+</main>
+
+<script>
+// ── DRAFT DATA ──────────────────────────────────────────────────────────
+const TEAMS = {
+  "Ben":     ["Scottie Scheffler","Russell Henley","Si Woo Kim","Marco Penge","Alex Noren","Johnny Keefer"],
+  "Noah":    ["Rory McIlroy","Jordan Spieth","Shane Lowry","Ben Griffin","Aaron Rai","Haotong Li"],
+  "Joel":    ["Bryson DeChambeau","Min Woo Lee","Justin Thomas","Sung-Jae Im","Max Homa","Nick Taylor"],
+  "Tommy":   ["Jon Rahm","Hideki Matsuyama","Adam Scott","Cameron Smith","Ryan Fox","Casey Jarvis"],
+  "Fred":    ["Xander Schauffele","Brooks Koepka","Tyrell Hatton","Wyndham Clark","Keegan Bradley","Dustin Johnson"],
+  "Charlie": ["Ludvig Åberg","Chris Gotterup","Nicolai Højgaard","Sam Burns","Brian Harman","Michael Kim"],
+  "Jon":     ["Tommy Fleetwood","Colin Morikawa","Corey Conners","Daniel Berger","Matt McCarty","Aldrich Potgieter"],
+  "DZ":      ["Cameron Young","Patrick Reed","Jake Knapp","Jason Day","Sami Valimaki","Ryan Gerard"],
+  "Mike":    ["Matthew Fitzpatrick","Viktor Hovland","Gary Woodland","Patrick Cantlay","Harry Hall","Samuel Stevens"],
+  "The Law": ["Robert MacIntyre","Justin Rose","JJ Spaun","Sepp Straka","Kurt Kitayama","Rasmus Højgaard"],
+  "Weiner":  ["Akshay Bhatia","Jacob Bridgeman","Harris English","Maverick McNealy","Tom McKibbin","Carlos Ortiz"],
+};
+
+// ── SCORING RULES ───────────────────────────────────────────────────────
+// - Only players who made the cut count
+// - Team needs 4+ cut-makers to be eligible (not eliminated)
+// - Team score = sum of best 3 scores among cut-makers
+// - If the team's player wins the tournament: apply -2 bonus to team total
+
+// ── HELPERS ─────────────────────────────────────────────────────────────
+function norm(name) {
+  return name.toLowerCase()
+    .replace(/[àáâãä]/g,'a').replace(/[èéêë]/g,'e')
+    .replace(/[ìíîï]/g,'i').replace(/[òóôõö]/g,'o')
+    .replace(/[ùúûü]/g,'u').replace(/[ý]/g,'y')
+    .replace(/[ñ]/g,'n').replace(/[ç]/g,'c')
+    .trim();
+}
+
+// Build reverse lookup: normalized player name → owner
+const PLAYER_OWNER = {};
+for (const [owner, players] of Object.entries(TEAMS)) {
+  for (const p of players) PLAYER_OWNER[norm(p)] = owner;
+}
+
+function findOwner(apiName) {
+  const n = norm(apiName);
+  if (PLAYER_OWNER[n]) return PLAYER_OWNER[n];
+  // Try last-name matching as fallback
+  const parts = n.split(' ');
+  const last = parts[parts.length - 1];
+  if (last.length > 3) {
+    for (const [k, v] of Object.entries(PLAYER_OWNER)) {
+      if (k.endsWith(last)) return v;
+    }
+  }
+  return null;
+}
+
+function fmtScore(score, status) {
+  if (status === 'cut' || status === 'wd' || status === 'dq') return { text: status.toUpperCase(), cls: 'score-elim', num: null };
+  if (score === null || score === undefined) return { text: '–', cls: 'score-even', num: null };
+  if (score === 0) return { text: 'E', cls: 'score-even', num: 0 };
+  if (score < 0) return { text: score.toString(), cls: 'score-under', num: score };
+  return { text: '+' + score, cls: 'score-over', num: score };
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── SCORING ENGINE ───────────────────────────────────────────────────────
+function calcTeamScore(owner, playerMap) {
+  const roster = TEAMS[owner];
+  const results = roster.map(name => playerMap[norm(name)] || null).filter(Boolean);
+
+  // Separate cut-makers from missed cuts
+  const cutMakers = results.filter(p => p.status !== 'cut' && p.status !== 'wd' && p.status !== 'dq' && p.score !== null);
+  const cutMissed = results.filter(p => p.status === 'cut' || p.status === 'wd' || p.status === 'dq');
+  const pending   = roster.filter(name => !playerMap[norm(name)]);
+
+  const eliminated = cutMakers.length < 4 && (cutMakers.length + pending.length) < 4;
+
+  // Sort cut-makers by score (best = lowest)
+  const sorted = [...cutMakers].sort((a, b) => (a.score ?? 99) - (b.score ?? 99));
+  const top3 = sorted.slice(0, 3);
+  const teamTotal = top3.reduce((s, p) => s + (p.score ?? 0), 0);
+
+  // Winner bonus: if any player is position T1 / 1
+  const hasWinner = cutMakers.some(p => p.position === '1' || p.position === 'T1' || p.winner);
+  const finalScore = (top3.length === 3 && !eliminated) ? teamTotal + (hasWinner ? -2 : 0) : null;
+
+  return { cutMakers, cutMissed, pending, sorted, top3, teamTotal, hasWinner, finalScore, eliminated, results };
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────
+function renderTeams(playerMap, roundInfo) {
+  const grid = document.getElementById('teamsGrid');
+  grid.innerHTML = '';
+
+  // Compute all team scores
+  const teamScores = Object.keys(TEAMS).map(owner => {
+    const data = calcTeamScore(owner, playerMap);
+    return { owner, ...data };
+  });
+
+  // Sort: non-eliminated first by finalScore, then eliminated
+  teamScores.sort((a, b) => {
+    if (a.eliminated && !b.eliminated) return 1;
+    if (!a.eliminated && b.eliminated) return -1;
+    if (a.finalScore === null && b.finalScore !== null) return 1;
+    if (a.finalScore !== null && b.finalScore === null) return -1;
+    return (a.finalScore ?? 99) - (b.finalScore ?? 99);
+  });
+
+  teamScores.forEach((ts, rank) => {
+    const card = document.createElement('div');
+    card.className = 'team-card' + (ts.eliminated ? ' eliminated' : '');
+
+    // Score display
+    let scoreTxt, scoreCls, scoreLabel;
+    if (ts.eliminated) {
+      scoreTxt = 'ELIM'; scoreCls = 'score-elim'; scoreLabel = 'Eliminated';
+    } else if (ts.finalScore === null) {
+      const cutCount = ts.cutMakers.length;
+      scoreTxt = `${cutCount}/4`; scoreCls = 'score-even'; scoreLabel = 'Cut-makers';
+    } else {
+      const sf = fmtScore(ts.finalScore, 'active');
+      scoreTxt = sf.text; scoreCls = sf.cls;
+      scoreLabel = ts.top3.length === 3 ? 'Top-3 Score' : `${ts.top3.length} Scoring`;
+    }
+
+    const rankLabel = ts.eliminated ? 'ELIMINATED' : `Rank #${rank + 1}`;
+    const bonusBadge = ts.hasWinner ? `<div class="winner-bonus">&#9733; Winner Bonus −2</div>` : '';
+
+    // Players HTML
+    const roster = TEAMS[ts.owner];
+    const allPlayers = roster.map(name => {
+      const p = playerMap[norm(name)];
+      if (!p) return { name, score: null, status: 'pending', position: '–' };
+      return { ...p, name };
+    });
+
+    // Sort: scoring (top-3) first, then other cut-makers, then cut/wd, then pending
+    allPlayers.sort((a, b) => {
+      const aInTop3 = ts.top3.some(t => norm(t.name || '') === norm(a.name));
+      const bInTop3 = ts.top3.some(t => norm(t.name || '') === norm(b.name));
+      if (aInTop3 && !bInTop3) return -1;
+      if (!aInTop3 && bInTop3) return 1;
+      const aActive = a.status !== 'cut' && a.status !== 'wd' && a.status !== 'pending' && a.score !== null;
+      const bActive = b.status !== 'cut' && b.status !== 'wd' && b.status !== 'pending' && b.score !== null;
+      if (aActive && !bActive) return -1;
+      if (!aActive && bActive) return 1;
+      if (a.score !== null && b.score !== null) return a.score - b.score;
+      return 0;
+    });
+
+    let playersHTML = '';
+    allPlayers.forEach(p => {
+      const isInTop3 = ts.top3.some(t => norm(t.name || '') === norm(p.name));
+      const isCut = p.status === 'cut' || p.status === 'wd';
+      const sf = fmtScore(p.score, p.status);
+
+      const dotColor = isInTop3 ? 'var(--gold)' : isCut ? 'var(--elim-b)' : p.status === 'pending' ? 'var(--border)' : 'var(--good)';
+      const rowClass = isInTop3 ? 'player-row counting' : isCut ? 'player-row cut-missed' : 'player-row';
+      const nameClass = p.status === 'cut' ? 'p-name cut' : p.status === 'wd' ? 'p-name wd' : 'p-name';
+      const posText = p.position && p.position !== '–' ? p.position : '';
+      const thruText = p.thru && p.thru !== '–' ? `<span style="font-size:10px;color:var(--muted);margin-left:3px">·${p.thru}</span>` : '';
+      const starTxt = isInTop3 ? `<span class="counting-star">COUNTS</span>` : '';
+
+      playersHTML += `
+        <div class="${rowClass}">
+          <div class="p-dot" style="background:${dotColor}"></div>
+          <span class="${nameClass}">${p.name}</span>
+          ${starTxt}
+          <div class="p-right">
+            <span class="p-pos">${posText}${thruText}</span>
+            <span class="p-score ${sf.cls}">${sf.text}</span>
+          </div>
+        </div>`;
+    });
+
+    // Cut warning
+    const cutCount = ts.cutMakers.length + ts.pending.length;
+    const cutWarn = !ts.eliminated && cutCount < 4 && ts.pending.length === 0
+      ? `<div class="cut-warn">⚠ Only ${ts.cutMakers.length} cut-makers — needs 4</div>` : '';
+
+    card.innerHTML = `
+      <div class="team-head">
+        <div class="team-rank-name">
+          <div class="t-rank">${rankLabel}</div>
+          <div class="t-name">${ts.owner}</div>
+        </div>
+        <div class="t-score-block">
+          <div class="t-score ${scoreCls}">${scoreTxt}</div>
+          <div class="t-score-label">${scoreLabel}</div>
+          ${bonusBadge}
+        </div>
+      </div>
+      <div class="team-players">${playersHTML}</div>
+      ${cutWarn}
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function renderLeaderboard(players) {
+  const wrap = document.getElementById('lbWrap');
+  const drafted = players.filter(p => p.owner);
+
+  drafted.sort((a, b) => {
+    if (a.status === 'cut' && b.status !== 'cut') return 1;
+    if (b.status === 'cut' && a.status !== 'cut') return -1;
+    if (a.score !== null && b.score !== null) return a.score - b.score;
+    return 0;
+  });
+
+  let rows = '';
+  drafted.forEach(p => {
+    const sf = fmtScore(p.score, p.status);
+    const nameClass = p.status === 'cut' ? 'p-name cut' : p.status === 'wd' ? 'p-name wd' : '';
+    const rowClass  = p.status === 'cut' || p.status === 'wd' ? 'cut-row' : '';
+    const thru = p.thru && p.thru !== '–' ? p.thru : '–';
+    rows += `
+      <tr class="${rowClass}">
+        <td class="lb-pos">${p.position || '–'}</td>
+        <td><span class="${nameClass}">${p.name}</span><span class="owner-chip">${p.owner}</span></td>
+        <td><span class="p-score ${sf.cls}">${sf.text}</span></td>
+        <td style="color:var(--muted);font-size:12px">${thru}</td>
+      </tr>`;
+  });
+
+  wrap.innerHTML = `
+    <table class="lb-table">
+      <thead><tr>
+        <th>Pos</th><th>Player</th><th>Score</th><th>Thru</th>
+      </tr></thead>
+      <tbody>${rows || '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted)">No drafted players found in live data</td></tr>'}</tbody>
+    </table>`;
+}
+
+// ── FETCH & PARSE ─────────────────────────────────────────────────────────
+async function loadScores() {
+  document.getElementById('statusText').textContent = 'Fetching live scores…';
+
+  try {
+    const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard');
+    const data = await res.json();
+
+    if (!data.events || !data.events.length) throw new Error('No events');
+
+    // Try to find Masters, else first event
+    const evt = data.events.find(e => (e.name || '').toLowerCase().includes('master')) || data.events[0];
+    const comp = evt.competitions && evt.competitions[0];
+    if (!comp) throw new Error('No competition data');
+
+    const roundInfo = comp.status?.type?.shortDetail || evt.status?.type?.shortDetail || '';
+    const players = [];
+    const playerMap = {}; // norm(name) → player data
+
+    for (const c of (comp.competitors || [])) {
+      const fullName = c.athlete?.displayName || '';
+      if (!fullName) continue;
+
+      const rawScore = c.score;
+      const score = rawScore === 'E' ? 0 : rawScore === '--' ? null : parseInt(rawScore);
+      const statusType = (c.status?.type?.name || '').toLowerCase();
+      const statusDetail = (c.status?.type?.shortDetail || '').toLowerCase();
+
+      let status = 'active';
+      if (statusType.includes('cut') || statusDetail.includes('cut')) status = 'cut';
+      else if (statusType.includes('wd') || statusDetail.includes('wd') || statusDetail.includes('withdrew')) status = 'wd';
+
+      const position = c.status?.position?.displayName || c.status?.displayValue || '';
+      const isWinner = position === '1' || position === 'T1';
+
+      // Thru: count linescores or use status
+      const thru = c.status?.thru || (c.linescores ? c.linescores.length : null);
+      const thruTxt = thru ? (thru === 18 ? 'F' : `${thru}`) : '–';
+
+      const owner = findOwner(fullName);
+
+      const pObj = {
+        name: fullName,
+        score: isNaN(score) ? null : score,
+        status,
+        position,
+        thru: thruTxt,
+        owner,
+        winner: isWinner,
+      };
+
+      players.push(pObj);
+      playerMap[norm(fullName)] = pObj;
+    }
+
+    renderTeams(playerMap, roundInfo);
+    renderLeaderboard(players);
+
+    document.getElementById('statusText').textContent = roundInfo || `Live · ${evt.name || 'Masters'}`;
+    document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+
+  } catch (err) {
+    console.error(err);
+    renderFallback();
+    document.getElementById('statusText').textContent = 'Live scores unavailable';
+    document.getElementById('pulseDot').style.background = 'var(--red)';
+  }
+}
+
+function renderFallback() {
+  const grid = document.getElementById('teamsGrid');
+  grid.innerHTML = `
+    <div style="grid-column:1/-1">
+      <div class="err-box">
+        ⛳ Live scores could not be loaded. The Masters may not be in progress yet,
+        or the data feed is temporarily unavailable.<br><br>
+        <strong>All rosters are locked and ready</strong> — scores will appear once the tournament begins (April 9–12).<br><br>
+        <button class="refresh-btn" onclick="loadScores()" style="font-size:11px;padding:5px 16px;border-color:var(--red);color:var(--red)">Try Again</button>
+      </div>
+    </div>`;
+
+  // Still show rosters
+  for (const [owner, players] of Object.entries(TEAMS)) {
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    let ph = players.map(p => `
+      <div class="player-row">
+        <div class="p-dot" style="background:var(--border)"></div>
+        <span class="p-name">${p}</span>
+        <div class="p-right"><span class="p-score score-even">–</span></div>
+      </div>`).join('');
+    card.innerHTML = `
+      <div class="team-head">
+        <div class="team-rank-name"><div class="t-rank">ROSTER</div><div class="t-name">${owner}</div></div>
+        <div class="t-score-block"><div class="t-score score-even">–</div><div class="t-score-label">Awaiting</div></div>
+      </div>
+      <div class="team-players">${ph}</div>`;
+    grid.appendChild(card);
+  }
+
+  document.getElementById('lbWrap').innerHTML = `<div class="err-box">No live data available yet.</div>`;
+}
+
+// Auto-refresh every 90s
+loadScores();
+setInterval(loadScores, 90000);
+</script>
+</body>
+</html>
