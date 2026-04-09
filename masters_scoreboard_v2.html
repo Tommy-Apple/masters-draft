@@ -490,10 +490,26 @@ for (const [owner, players] of Object.entries(TEAMS)) {
   for (const p of players) PLAYER_OWNER[norm(p)] = owner;
 }
 
-function findOwner(apiName) {
+// ESPN uses different spellings for some players — map to our draft names
+const NAME_ALIASES = {
+  'j.j. spaun':       'jj spaun',
+  'tyrrell hatton':   'tyrell hatton',
+  'matt fitzpatrick': 'matthew fitzpatrick',
+  'sungjae im':       'sung-jae im',
+  'sung jae im':      'sung-jae im',
+  'sam stevens':      'samuel stevens',
+  'col morikawa':     'colin morikawa',
+};
+
+function resolveNorm(apiName) {
   const n = norm(apiName);
+  return NAME_ALIASES[n] || n;
+}
+
+function findOwner(apiName) {
+  const n = resolveNorm(apiName);
   if (PLAYER_OWNER[n]) return PLAYER_OWNER[n];
-  // Try last-name matching as fallback
+  // Last-name fallback
   const parts = n.split(' ');
   const last = parts[parts.length - 1];
   if (last.length > 3) {
@@ -522,12 +538,12 @@ function switchTab(id, btn) {
 // ── SCORING ENGINE ───────────────────────────────────────────────────────
 function calcTeamScore(owner, playerMap) {
   const roster = TEAMS[owner];
-  const results = roster.map(name => playerMap[norm(name)] || null).filter(Boolean);
+  const results = roster.map(name => playerMap[resolveNorm(name)] || playerMap[norm(name)] || null).filter(Boolean);
 
   // Separate cut-makers from missed cuts
   const cutMakers = results.filter(p => p.status !== 'cut' && p.status !== 'wd' && p.status !== 'dq' && p.score !== null);
   const cutMissed = results.filter(p => p.status === 'cut' || p.status === 'wd' || p.status === 'dq');
-  const pending   = roster.filter(name => !playerMap[norm(name)]);
+  const pending   = roster.filter(name => !playerMap[resolveNorm(name)] && !playerMap[norm(name)]);
 
   const eliminated = cutMakers.length < 4 && (cutMakers.length + pending.length) < 4;
 
@@ -742,7 +758,7 @@ async function loadScores() {
       };
 
       players.push(pObj);
-      playerMap[norm(fullName)] = pObj;
+      playerMap[resolveNorm(fullName)] = pObj;
     }
 
     renderTeams(playerMap, roundInfo);
